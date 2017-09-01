@@ -267,8 +267,9 @@ class Main {
 		log('Closed data channel with label: ' + this.receiveChannel.label);
 
 		this.localConnection.close();
-		this.remoteConnection.close();
 		this.localConnection = null;
+
+		this.remoteConnection.close();
 		this.remoteConnection = null;
 
 		log('Closed peer connections');
@@ -276,12 +277,12 @@ class Main {
 		this.startButton.disabled = false;
 		this.sendButton.disabled = true;
 		this.closeButton.disabled = true;
+
 		this.dataChannelSend.value = '';
-		this.dataChannelReceive.value = '';
 		this.dataChannelSend.disabled = true;
 
-		this.sendButton.disabled = true;
-		this.startButton.disabled = false;
+		this.dataChannelReceive.value = '';
+
 	}
 
 	/**
