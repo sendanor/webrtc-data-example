@@ -1,0 +1,38 @@
+{
+  "name": "webrtc-data-example",
+  "version": "1.0.0",
+  "description": "Standalone, simplified, WebRTC data channel example in ES6.",
+  "main": "src/main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "compile": "npm run -s compile-babel && npm run -s copy",
+    "compile-babel": "babel src --out-dir dist --presets=es2015",
+    "compile-watch": "babel --watch src --out-dir dist --presets=es2015",
+    "copy": "npm run -s copy-html && npm run -s copy-css",
+    "copy-html": "cp ./src/index.html ./dist/index.html",
+    "copy-css": "cp ./src/main.css ./dist/main.css",
+    "prepublish": "npm run compile"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sendanor/webrtc-data-example.git"
+  },
+  "keywords": [
+    "webrtc",
+    "es6",
+    "example",
+    "sample",
+    "babel"
+  ],
+  "author": "",
+  "license": "SEE LICENSE IN LICENSE",
+  "bugs": {
+    "url": "https://github.com/sendanor/webrtc-data-example/issues"
+  },
+  "homepage": "https://github.com/sendanor/webrtc-data-example#readme",
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-es2015": "^6.24.1",
+    "q": "^1.5.0"
+  }
+}
