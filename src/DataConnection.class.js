@@ -229,7 +229,7 @@ export default class DataConnection extends EventEmitter {
 		this.emit('*:readyState:changed', readyState, channel);
 		this._log('Emiting '+eventName+': ' + readyState);
 		this.emit(eventName, readyState);
-		if (readyState === 'closed') delete this[key];
+		if (readyState === 'closed') this[key] = null;
 	}
 
 	/** Print log message
