@@ -8,6 +8,7 @@
     "compile": "npm run -s compile-babel && npm run -s copy",
     "compile-babel": "babel src --out-dir dist --presets=es2015",
     "compile-watch": "babel --watch src --out-dir dist --presets=es2015",
+    "compile-webpack": "webpack --config webpack.config.js",
     "copy": "npm run -s copy-html && npm run -s copy-css",
     "copy-html": "cp ./src/index.html ./dist/index.html",
     "copy-css": "cp ./src/main.css ./dist/main.css",
@@ -25,7 +26,7 @@
     "babel"
   ],
   "author": "",
-  "license": "SEE LICENSE IN LICENSE",
+  "license": "SEE LICENSE IN LICENSE.md",
   "bugs": {
     "url": "https://github.com/sendanor/webrtc-data-example/issues"
   },
@@ -33,6 +34,8 @@
   "devDependencies": {
     "babel-cli": "^6.26.0",
     "babel-preset-es2015": "^6.24.1",
-    "q": "^1.5.0"
+    "webpack": "^3.5.5",
+    "babel-loader": "^7.1.2",
+    "wolfy87-eventemitter": "^5.2.2"
   }
 }
