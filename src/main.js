@@ -6,11 +6,10 @@
  *  tree.
  */
 
-import LocalMain from './LocalMain.class.js';
-import RemoteMain from './RemoteMain.class.js';
+import DataConnection from './DataConnection.class.js';
 
-const localMain = window.localMain = new LocalMain();
-const remoteMain = window.remoteMain = new RemoteMain();
+const localConnection = window.localConnection = new DataConnection('local');
+const remoteConnection = window.remoteConnection = new DataConnection('remote');
 
 /** {Element} */
 const dataChannelSend = document.querySelector('textarea#dataChannelSend');
@@ -18,7 +17,7 @@ const dataChannelSend = document.querySelector('textarea#dataChannelSend');
 /** {Element} */
 const dataChannelReceive = document.querySelector('textarea#dataChannelReceive');
 
-remoteMain.on('message', data => {
+remoteConnection.on('message', data => {
 	dataChannelReceive.value = data;
 });
 
@@ -30,36 +29,36 @@ startButton.onclick = () => {
 	startButton.disabled = true;
 	closeButton.disabled = false;
 
-	localMain.createConnection();
+	localConnection.create({sending: true});
 
-	remoteMain.createConnection();
+	remoteConnection.create({receiving: true});
 
-	localMain.once(
+	localConnection.once(
 		'offer',
-		desc => remoteMain.setRemoteDescription(desc).then(
-			() => remoteMain.createAnswer()
+		desc => remoteConnection.setRemoteDescription(desc).then(
+			() => remoteConnection.createAnswer()
 		).catch(
 			err => console.log('Failed to handle offer or create an answer: ' + err)
 		)
 	);
 
-	remoteMain.once('answer', desc => localMain.setRemoteDescription(desc) );
+	remoteConnection.once('answer', desc => localConnection.setRemoteDescription(desc) );
 
-	return localMain.createOffer();
+	return localConnection.createOffer();
 };
 
 /** {Element} */
 const sendButton = document.querySelector('button#sendButton');
 sendButton.onclick = () => {
 	const data = dataChannelSend.value;
-	localMain.sendData(data);
+	localConnection.sendData(data);
 };
 
 /** {Element} */
 const closeButton = document.querySelector('button#closeButton');
 closeButton.onclick = () => {
-	localMain.close();
-	remoteMain.close();
+	localConnection.close();
+	remoteConnection.close();
 
 	startButton.disabled = false;
 	sendButton.disabled = true;
@@ -71,7 +70,7 @@ closeButton.onclick = () => {
 	dataChannelReceive.value = '';
 };
 
-localMain.on('sendChannel:readyState:changed', readyState => {
+localConnection.on('sendChannel:readyState:changed', readyState => {
 	if (readyState === 'open') {
 		dataChannelSend.disabled = false;
 		dataChannelSend.focus();
@@ -84,18 +83,18 @@ localMain.on('sendChannel:readyState:changed', readyState => {
 	}
 });
 
-localMain.on(
+localConnection.on(
 	'ice-candidate',
-	candidate => remoteMain.addIceCandidate(candidate).then(
+	candidate => remoteConnection.addIceCandidate(candidate).then(
 		() => console.log('AddIceCandidate success.')
 	).catch(
 		error => console.log('Failed to add Ice Candidate: ' + error)
 	)
 );
 
-remoteMain.on(
+remoteConnection.on(
 	'ice-candidate',
-	candidate => localMain.addIceCandidate(candidate).then(
+	candidate => localConnection.addIceCandidate(candidate).then(
 		() => console.log('AddIceCandidate success.')
 	).catch(
 		error => console.log('Failed to add Ice Candidate: ' + error)
