@@ -27,10 +27,19 @@ export default class DataConnection extends EventEmitter {
 		super();
 
 		/**
-		 * @type {string}
+		 * @member {string}
 		 * @private
 		 */
 		this._id = id || 'DataConnection';
+
+		/** @member {RTCPeerConnection|null} */
+		this._connection = null;
+
+		/** @member {RTCDataChannel|null} */
+		this._sendChannel = null;
+
+		/** @member {RTCDataChannel|null} */
+		this._receiveChannel = null;
 	}
 
 	/**
@@ -61,10 +70,9 @@ export default class DataConnection extends EventEmitter {
 		this._connection.onicecandidate = e => this._onIceCandidate(e);
 
 		if (opts.sending) {
-			/** @member {RTCDataChannel} */
-			this.sendChannel = this._connection.createDataChannel('sendDataChannel', null);
-			this.sendChannel.onopen = () => this._onChannelStateChange('sendChannel');
-			this.sendChannel.onclose = () => this._onChannelStateChange('sendChannel');
+			this._sendChannel = this._connection.createDataChannel('sendDataChannel', null);
+			this._sendChannel.onopen = () => this._onChannelStateChange('sendChannel');
+			this._sendChannel.onclose = () => this._onChannelStateChange('sendChannel');
 			this._log('Created send data channel');
 		}
 
@@ -118,8 +126,8 @@ export default class DataConnection extends EventEmitter {
 	 *
 	 */
 	sendData (data) {
-		if (!this.sendChannel) throw new Error("Send channel was not created: check your init options");
-		this.sendChannel.send(data);
+		if (!this._sendChannel) throw new Error("Send channel was not created: check your init options");
+		this._sendChannel.send(data);
 		this._log('Sent Data: ' + data);
 	}
 
@@ -130,16 +138,14 @@ export default class DataConnection extends EventEmitter {
 
 		this._log('Closing data channels');
 
-		if (this.receiveChannel) {
-			this.receiveChannel.close();
-			this._log('Closed data channel with label: ' + this.receiveChannel.label);
-			//this.receiveChannel = null;
+		if (this._receiveChannel) {
+			this._receiveChannel.close();
+			this._log('Closed data channel with label: ' + this._receiveChannel.label);
 		}
 
-		if (this.sendChannel) {
-			this.sendChannel.close();
-			this._log('Closed data channel with label: ' + this.sendChannel.label);
-			//this.sendChannel = null;
+		if (this._sendChannel) {
+			this._sendChannel.close();
+			this._log('Closed data channel with label: ' + this._sendChannel.label);
 		}
 
 		this._connection.close();
@@ -186,23 +192,25 @@ export default class DataConnection extends EventEmitter {
 	 */
 	_receiveChannelCallback (event) {
 
+		if (!event) throw new Error("event invalid: " + event);
+		if (!event.channel) throw new Error("event.channel invalid: " + event.channel);
+
 		this._log('Receive Channel Callback');
 
-		/** @member {RTCDataChannel} */
-		this.receiveChannel = event.channel;
+		this._receiveChannel = event.channel;
 
 		/**
 		 *
 		 * @param event {MessageEvent}
 		 */
-		this.receiveChannel.onmessage = event => {
+		this._receiveChannel.onmessage = event => {
 			this._log('Emiting message: ' + event.data);
 			this.emit('message', event.data, event);
 		};
 
-		this.receiveChannel.onopen = () => this._onChannelStateChange('receiveChannel');
+		this._receiveChannel.onopen = () => this._onChannelStateChange('receiveChannel');
 
-		this.receiveChannel.onclose = () => this._onChannelStateChange('receiveChannel');
+		this._receiveChannel.onclose = () => this._onChannelStateChange('receiveChannel');
 	}
 
 	/**
@@ -211,7 +219,7 @@ export default class DataConnection extends EventEmitter {
 	 * @private
 	 */
 	_onChannelStateChange (channel) {
-		const key = '' + channel;
+		const key = '_' + channel;
 		const eventName = '' + channel + ':readyState:changed';
 
 		if (!this[key]) throw new Error('No such channel: ' + channel);
