@@ -10,9 +10,9 @@ import EventEmitter from 'wolfy87-eventemitter';
 import { RTCPeerConnection } from './webrtc.js';
 
 /**
- * @typedef {object} CreateConnectionOptions
- * @property {boolean} sending - Enable sending channel
- * @property {boolean} receiving - Enable receiving channel
+ * @typedef {Object} CreateConnectionOptions
+ * @property {boolean} [sending] - Enable sending channel
+ * @property {boolean} [receiving] - Enable receiving channel
  */
 
 /**
