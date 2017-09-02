@@ -16,6 +16,10 @@ export default class Main extends EventEmitter {
 
 	constructor () {
 		super();
+
+		this.servers = null;
+		this.pcConstraint = null;
+		this.dataConstraint = null;
 	}
 
 	/**
@@ -23,17 +27,11 @@ export default class Main extends EventEmitter {
 	 */
 	createConnection () {
 
-		this.servers = null;
-		this.pcConstraint = null;
-		this.dataConstraint = null;
-
 		this._log('Using SCTP based data channels');
 
 		// SCTP is supported from Chrome 31 and is supported in FF.
 		// No need to pass DTLS constraint as it is on by default in Chrome 31.
 		// For SCTP, reliable and ordered is true by default.
-		// Add localConnection to global scope to make it visible
-		// from the browser console.
 
 		/** @member {RTCPeerConnection} */
 		this.localConnection = new RTCPeerConnection(this.servers, this.pcConstraint);
@@ -72,7 +70,7 @@ export default class Main extends EventEmitter {
 		this._log('Created remote peer connection object this.remoteConnection');
 
 		return this.localConnection.createOffer().then(
-			desc => this._gotDescription1(desc),
+			desc => this._setLocalDescription(desc),
 			error => this._log('Failed to create session description: ' + error)
 		);
 	}
@@ -116,15 +114,16 @@ export default class Main extends EventEmitter {
 	 * @returns {Promise}
 	 * @private
 	 */
-	_gotDescription1 (desc) {
+	_setLocalDescription (desc) {
+		this._log('Offer from this.localConnection \n' + desc.sdp)
 		return this.localConnection.setLocalDescription(desc).then(
-			() => this._log('Offer from this.localConnection \n' + desc.sdp)
-		).then(
+		//	() => this._log('Offer from this.localConnection \n' + desc.sdp)
+		//).then(
 			() => this.remoteConnection.setRemoteDescription(desc)
 		).then(
 			() => this.remoteConnection.createAnswer()
 		).then(
-			desc => this._gotDescription2(desc)
+			desc => this._setRemoteDescription(desc)
 		).catch(
 			error => this._log('Failed to create session description: ' + error)
 		);
@@ -136,7 +135,7 @@ export default class Main extends EventEmitter {
 	 * @returns {Promise}
 	 * @private
 	 */
-	_gotDescription2 (desc) {
+	_setRemoteDescription (desc) {
 		return this.remoteConnection.setLocalDescription(desc).then(
 			() => this._log('Answer from this.remoteConnection \n' + desc.sdp)
 		).then(

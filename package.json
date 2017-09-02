@@ -2,17 +2,17 @@
   "name": "webrtc-data-example",
   "version": "1.0.0",
   "description": "Standalone, simplified, WebRTC data channel example in ES6.",
-  "main": "src/main.js",
+  "main": "dist/Main.class.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "compile": "npm run -s compile-babel && npm run -s copy",
+    "compile": "npm run -s compile-webpack && npm run -s copy",
     "compile-babel": "babel src --out-dir dist --presets=es2015",
     "compile-watch": "babel --watch src --out-dir dist --presets=es2015",
     "compile-webpack": "webpack --config webpack.config.js",
     "copy": "npm run -s copy-html && npm run -s copy-css",
     "copy-html": "cp ./src/index.html ./dist/index.html",
     "copy-css": "cp ./src/main.css ./dist/main.css",
-    "prepublish": "npm run compile"
+    "prepublish": "npm run compile-babel"
   },
   "repository": {
     "type": "git",
