@@ -1,3 +1,10 @@
+/*
+ *  Copyright (c) 2017 Jaakko-Heikki Heusala <jheusala@iki.fi>
+ *
+ *  Use of this source code is governed by a BSD-style license
+ *  that can be found in the LICENSE file in the root of the source
+ *  tree.
+ */
 
 // We use jsdoc comments here to make WebStorm understand WebRTC API
 

@@ -1,4 +1,5 @@
 /*
+ *  Copyright (c) 2017 Jaakko-Heikki Heusala <jheusala@iki.fi>
  *  Copyright (c) 2015 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
