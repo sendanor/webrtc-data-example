@@ -70,7 +70,12 @@ export default class Main extends EventEmitter {
 		this._log('Created remote peer connection object this.remoteConnection');
 
 		return this.localConnection.createOffer().then(
-			desc => this._setLocalDescription(desc),
+			desc => this._setLocalDescription(desc)
+		).then(
+			() => this.remoteConnection.createAnswer()
+		).then(
+			desc => this._setRemoteDescription(desc)
+		).catch(
 			error => this._log('Failed to create session description: ' + error)
 		);
 	}
@@ -115,17 +120,9 @@ export default class Main extends EventEmitter {
 	 * @private
 	 */
 	_setLocalDescription (desc) {
-		this._log('Offer from this.localConnection \n' + desc.sdp)
+		this._log('Offer from this.localConnection \n' + desc.sdp);
 		return this.localConnection.setLocalDescription(desc).then(
-		//	() => this._log('Offer from this.localConnection \n' + desc.sdp)
-		//).then(
 			() => this.remoteConnection.setRemoteDescription(desc)
-		).then(
-			() => this.remoteConnection.createAnswer()
-		).then(
-			desc => this._setRemoteDescription(desc)
-		).catch(
-			error => this._log('Failed to create session description: ' + error)
 		);
 	}
 
@@ -136,9 +133,8 @@ export default class Main extends EventEmitter {
 	 * @private
 	 */
 	_setRemoteDescription (desc) {
+		this._log('Answer from this.remoteConnection \n' + desc.sdp);
 		return this.remoteConnection.setLocalDescription(desc).then(
-			() => this._log('Answer from this.remoteConnection \n' + desc.sdp)
-		).then(
 			() => this.localConnection.setRemoteDescription(desc)
 		);
 	}
