@@ -36,11 +36,11 @@ export default class DataConnection extends EventEmitter {
 	/**
 	 *
 	 * @param opts {CreateConnectionOptions}
-	 * @returns {Connection}
+	 * @returns {DataConnection}
 	 */
 	create (opts) {
 
-		opts = Object.assing({
+		opts = Object.assign({
 			sending: false,
 			receiving: false
 		}, opts || {});
@@ -63,8 +63,8 @@ export default class DataConnection extends EventEmitter {
 		if (opts.sending) {
 			/** @member {RTCDataChannel} */
 			this.sendChannel = this._connection.createDataChannel('sendDataChannel', null);
-			this.sendChannel.onopen = () => this._onSendChannelStateChange();
-			this.sendChannel.onclose = () => this._onSendChannelStateChange();
+			this.sendChannel.onopen = () => this._onChannelStateChange('sendChannel');
+			this.sendChannel.onclose = () => this._onChannelStateChange('sendChannel');
 			this._log('Created send data channel');
 		}
 
@@ -133,13 +133,13 @@ export default class DataConnection extends EventEmitter {
 		if (this.receiveChannel) {
 			this.receiveChannel.close();
 			this._log('Closed data channel with label: ' + this.receiveChannel.label);
-			this.receiveChannel = null;
+			//this.receiveChannel = null;
 		}
 
 		if (this.sendChannel) {
 			this.sendChannel.close();
 			this._log('Closed data channel with label: ' + this.sendChannel.label);
-			this.sendChannel = null;
+			//this.sendChannel = null;
 		}
 
 		this._connection.close();
@@ -200,29 +200,28 @@ export default class DataConnection extends EventEmitter {
 			this.emit('message', event.data, event);
 		};
 
-		this.receiveChannel.onopen = () => this._onReceiveChannelStateChange();
+		this.receiveChannel.onopen = () => this._onChannelStateChange('receiveChannel');
 
-		this.receiveChannel.onclose = () => this._onReceiveChannelStateChange();
+		this.receiveChannel.onclose = () => this._onChannelStateChange('receiveChannel');
 	}
 
 	/**
 	 *
+	 * @param channel {string} Either "receiveChannel" or "sendChannel"
 	 * @private
 	 */
-	_onReceiveChannelStateChange () {
-		const readyState = this.receiveChannel.readyState;
-		this._log('Emiting receiveChannel:readyState:changed: ' + readyState);
-		this.emit('receiveChannel:readyState:changed', readyState);
-	}
+	_onChannelStateChange (channel) {
+		const key = '' + channel;
+		const eventName = '' + channel + ':readyState:changed';
 
-	/**
-	 *
-	 * @private
-	 */
-	_onSendChannelStateChange () {
-		const readyState = this.sendChannel.readyState;
-		this._log('Emiting sendChannel:readyState:changed: ' + readyState);
-		this.emit('sendChannel:readyState:changed', readyState);
+		if (!this[key]) throw new Error('No such channel: ' + channel);
+
+		const readyState = this[key].readyState;
+		this._log('Emiting *:readyState:changed: ' + readyState + ', ' + channel);
+		this.emit('*:readyState:changed', readyState, channel);
+		this._log('Emiting '+eventName+': ' + readyState);
+		this.emit(eventName, readyState);
+		if (readyState === 'closed') delete this[key];
 	}
 
 	/** Print log message

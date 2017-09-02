@@ -6,6 +6,7 @@
  *  tree.
  */
 
+import 'babel-polyfill';
 import DataConnection from './DataConnection.class.js';
 
 const localConnection = window.localConnection = new DataConnection('local');
