@@ -6,11 +6,9 @@
  *  tree.
  */
 
-import LocalMain from './LocalMain.class.js';
-import RemoteMain from './RemoteMain.class.js';
+import Main from './Main.class.js';
 
-const localMain = window.localMain = new LocalMain();
-const remoteMain = window.remoteMain = new RemoteMain();
+const main = window.main = new Main();
 
 /** {Element} */
 const dataChannelSend = document.querySelector('textarea#dataChannelSend');
@@ -18,48 +16,30 @@ const dataChannelSend = document.querySelector('textarea#dataChannelSend');
 /** {Element} */
 const dataChannelReceive = document.querySelector('textarea#dataChannelReceive');
 
-remoteMain.on('message', data => {
+main.on('message', data => {
 	dataChannelReceive.value = data;
 });
 
 /** {Element} */
 const startButton = document.querySelector('button#startButton');
 startButton.onclick = () => {
-
 	dataChannelSend.placeholder = '';
 	startButton.disabled = true;
 	closeButton.disabled = false;
-
-	localMain.createConnection();
-
-	remoteMain.createConnection();
-
-	localMain.once(
-		'offer',
-		desc => remoteMain.setRemoteDescription(desc).then(
-			() => remoteMain.createAnswer()
-		).catch(
-			err => console.log('Failed to handle offer or create an answer: ' + err)
-		)
-	);
-
-	remoteMain.once('answer', desc => localMain.setRemoteDescription(desc) );
-
-	return localMain.createOffer();
+	return main.createConnection();
 };
 
 /** {Element} */
 const sendButton = document.querySelector('button#sendButton');
 sendButton.onclick = () => {
 	const data = dataChannelSend.value;
-	localMain.sendData(data);
+	main.sendData(data);
 };
 
 /** {Element} */
 const closeButton = document.querySelector('button#closeButton');
 closeButton.onclick = () => {
-	localMain.close();
-	remoteMain.close();
+	main.close();
 
 	startButton.disabled = false;
 	sendButton.disabled = true;
@@ -71,7 +51,7 @@ closeButton.onclick = () => {
 	dataChannelReceive.value = '';
 };
 
-localMain.on('sendChannel:readyState:changed', readyState => {
+main.on('sendChannel:readyState:changed', readyState => {
 	if (readyState === 'open') {
 		dataChannelSend.disabled = false;
 		dataChannelSend.focus();
@@ -83,21 +63,3 @@ localMain.on('sendChannel:readyState:changed', readyState => {
 		closeButton.disabled = true;
 	}
 });
-
-localMain.on(
-	'ice-candidate',
-	candidate => remoteMain.addIceCandidate(candidate).then(
-		() => console.log('AddIceCandidate success.')
-	).catch(
-		error => console.log('Failed to add Ice Candidate: ' + error)
-	)
-);
-
-remoteMain.on(
-	'ice-candidate',
-	candidate => localMain.addIceCandidate(candidate).then(
-		() => console.log('AddIceCandidate success.')
-	).catch(
-		error => console.log('Failed to add Ice Candidate: ' + error)
-	)
-);

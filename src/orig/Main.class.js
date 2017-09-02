@@ -91,7 +91,7 @@ export default class Main extends EventEmitter {
 	/**
 	 *
 	 */
-	closeDataChannels () {
+	close () {
 
 		this._log('Closing data channels');
 
